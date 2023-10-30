@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cifrado Afín | Paula Anaya</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
-      crossorigin="anonymous"
-    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-database.js"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap");
       * {
@@ -21,410 +18,95 @@
       }
       body {
         background-color: #251c31;
-      }
-      .container-form-cifrar {
-        width: 75vh;
-        background-color: #683b9399;
-        padding: 25px;
-        border-radius: 10px;
-        margin-top: 12px;
-      }
-
-      .ctn-content {
-        height: 80vh;
         display: flex;
-        justify-content: center;
         align-items: center;
-      }
-
-      .container-form-descrifrar {
-        width: 75vh;
-        background-color: #683b9399;
-        padding: 25px;
-        border-radius: 10px;
-        margin-top: 12px;
-        display: none;
-      }
-
-      .ctn-img {
-        display: flex;
         justify-content: center;
-        align-items: center;
-      }
-
-      .ctn {
         height: 100vh;
       }
-
-      .ecrip {
-        width: 100%;
-      }
-
-      .disabled {
-        pointer-events: none;
-        opacity: 0.5;
-      }
-
-      #frecuencyAnalysis {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-        margin: auto;
-      }
-
-      #frecuencyAnalysis th,
-      #frecuencyAnalysis td {
-        padding: 8px;
+      .form-container {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        padding: 20px;
         text-align: center;
+        opacity: 1;
+        z-index: 1;
+        transition: opacity 0.3s, z-index 0.3s;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: none;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
       }
 
-      #frecuencyAnalysis th {
-        background-color: #aeaeaed9;
+      input:disabled {
+        background: #ca7373be;
+        color: white;
       }
 
-      #frecuencyAnalysis tr:nth-child(even) {
-        background-color: #aeaeaed9;
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
       }
-
-      #frecuencyAnalysis tr:hover {
-        background-color: #dddddd45;
+      .toggle-link {
+        cursor: pointer;
+        color: #1eceffdd;
       }
     </style>
-    <script>
-      const toggleButtons = () => {
-        const containerFormCifrar = document.querySelector(
-          ".container-form-cifrar"
-        );
-        const containerFormDescifrar = document.querySelector(
-          ".container-form-descrifrar"
-        );
-        const btnCifrar = document.querySelector("#btn-cifrado");
-
-        if (containerFormCifrar.style.display === "none") {
-          containerFormCifrar.style.display = "block";
-          containerFormDescifrar.style.display = "none";
-          btnCifrar.innerHTML = "Descifrar";
-          btnCifrar.classList = "btn btn-success";
-        } else {
-          containerFormCifrar.style.display = "none";
-          containerFormDescifrar.style.display = "block";
-          btnCifrar.innerHTML = "Cifrar";
-          btnCifrar.classList = "btn btn-info";
-        }
-      };
-    </script>   
   </head>
   <body>
-    <div class="container mt-2 ctn">
-      <div class="row">
-        <div class="col-12 mt-5 ml-5">
-          <h1 class="text-center"><strong>Cifrado Afín</strong></h1>
-        </div>
-      </div>
-
-      <div class="row ctn-content">
-        <div class="col-4 ctn-img">
-          <img
-            src="http://drive.google.com/uc?export=view&id=1uidNOmG3itBRO4Z4JvTu_WBFgXodlrJi"
-            alt="img"
-          />
-        </div>
-
-        <div class="col-7 ctn-form" style="margin-left: 60px !important">
-          <div class="buttons">
-            <button
-              class="btn btn-success"
-              onclick="toggleButtons()"
-              id="btn-cifrado"
-            >
-              Descifrar
-            </button>
-          </div>
-
-          <div class="container-form-cifrar">
-            <h3 class="text-center">Cifrar.</h3>
-            <form>
-              <div class="mb-3">
-                <label for="exampleFormControlTextarea1" class="form-label"
-                  >Ingrese texto a cifrar</label
-                >
-                <textarea
-                  class="form-control"
-                  id="textToEncrypt"
-                  rows="3"
-                ></textarea>
-              </div>
-              <div class="mb-3">
-                <label for="example" class="form-label"
-                  >Ingrese (a) Decimación</label
-                >
-                <input
-                  type="number"
-                  class="form-control"
-                  id="aValue"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="example" class="form-label"
-                  >Ingrese (b) Desplazamiento</label
-                >
-                <input
-                  type="number"
-                  class="form-control"
-                  id="bValue"
-                  required
-                />
-              </div>
-              <p class="btn btn-info ecrip" onclick="getTextAndEncrypt()">
-                Encriptar
-              </p>
-
-              <div class="mb-3">
-                <label for="exampleFormControlTextarea1" class="form-label"
-                  >Resultado encriptación</label
-                >
-                <textarea
-                  class="form-control"
-                  id="resultToEncrypt"
-                  rows="3"
-                ></textarea>
-              </div>
-            </form>
-          </div>
-
-          <div class="container-form-descrifrar">
-            <h3 class="text-center">Descifrar.</h3>
-            <form>
-              <div class="mb-3">
-                <label for="exampleFormControlTextarea1" class="form-label"
-                  >Ingrese texto a descrifrar</label
-                >
-                <textarea
-                  class="form-control"
-                  id="encriptedText"
-                  rows="3"
-                ></textarea>
-              </div>
-
-              <div class="mb-3">
-                <label for="example" class="form-label"
-                  >Ingrese (a) Decimación</label
-                >
-                <input type="number" class="form-control" id="aVal" required />
-              </div>
-
-              <div class="mb-3">
-                <label for="example" class="form-label"
-                  >Ingrese (b) Desplazamiento</label
-                >
-                <input type="number" class="form-control" id="bVal" required />
-              </div>
-              <p class="btn btn-warning ecrip" onclick="getFrecuency()">
-                Descrifrar
-              </p>
-
-              <div class="mb-3">
-                <label for="exampleFormControlTextarea1" class="form-label"
-                  >Resultado descifrado</label
-                >
-                <textarea
-                  class="form-control"
-                  id="resultToDescript"
-                  rows="3"
-                ></textarea>
-              </div>
-
-              <div class="mb-3">
-                <h4>Analisis de frecuencia</h4>
-                <table id="frecuencyAnalysis"></table>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+    <div class="form-container" id="loginContainer">
+      <h2>Iniciar Sesión</h2>
+      <form id="loginForm">
+        <label for="loginEmail">Email:</label>
+        <input type="email" id="loginEmail" name="loginEmail" required />
+        <label for="loginPassword">Contraseña:</label>
+        <input
+          type="password"
+          id="loginPassword"
+          name="loginPassword"
+          required
+        />
+        <button id="btnLogin" type="submit">Iniciar Sesión</button>
+        <p class="toggle-link" id="toggleRegistration">
+          ¿No tienes cuenta? Regístrate
+        </p>
+      </form>
     </div>
-    <script>
-      // Function to clean and normalize text
-      function cleanText(text) {
-        const characterMap = {
-          á: "a",
-          é: "e",
-          í: "i",
-          ó: "o",
-          ú: "u",
-          ü: "u",
-          Á: "A",
-          É: "E",
-          Í: "I",
-          Ó: "O",
-          Ú: "U",
-          Ü: "U",
-        };
 
-        const specialCharactersRegex = /[\s.,\/#!$%\^&\*;:{}=\-_`~()\n0-9]/g;
+    <div
+      class="form-container"
+      id="registrationContainer"
+      style="display: none"
+    >
+      <h2>Registro</h2>
+      <form id="registrationForm">
+        <label for="registerName">Nombre:</label>
+        <input type="text" id="registerName" name="registerName" required />
+        <label for="registerEmail">Email:</label>
+        <input type="email" id="registerEmail" name="registerEmail" required />
+        <label for="registerPassword">Contraseña:</label>
+        <input
+          type="password"
+          id="registerPassword"
+          name="registerPassword"
+          required
+        />
+        <button id="btnRegister" type="submit">Registrarse</button>
+        <p class="toggle-link" id="toggleLogin">
+          ¿Ya tienes cuenta? Iniciar Sesión
+        </p>
+      </form>
+    </div>
 
-        function replaceCharacter(character) {
-          return characterMap[character] || character;
-        }
-
-        return text
-          .replace(specialCharactersRegex, "")
-          .replace(/[áéíóúüÁÉÍÓÚÜ]/g, replaceCharacter)
-          .toUpperCase();
-      }
-
-      // Function to check if two numbers are coprime
-      function areCoprimes(a, b) {
-        function calculateGCD(x, y) {
-          return y === 0 ? x : calculateGCD(y, x % y);
-        }
-        return calculateGCD(a, b) === 1;
-      }
-
-      // Function to calculate the modular multiplicative inverse
-      function modularInverse(a, m) {
-        for (let x = 1; x < m; x++) {
-          if ((a * x) % m === 1) {
-            return x;
-          }
-        }
-        return 1;
-      }
-
-      // Function for encryption
-      function encryption(plaintext, a, b) {
-        if (areCoprimes(a, 27)) {
-          const ALPHABET = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
-          const m = ALPHABET.length;
-          let ciphertext = "";
-
-          for (const char of plaintext) {
-            const index = ALPHABET.indexOf(char);
-            if (index === -1) {
-              ciphertext += char;
-            } else {
-              const encryptedIndex = (a * index + b) % m;
-              const encryptedChar = ALPHABET[encryptedIndex];
-              ciphertext += encryptedChar;
-            }
-          }
-
-          return ciphertext;
-        } else {
-          alert("A y 27 deben ser coprimos, ingresa otro valor para a");
-          return null;
-        }
-      }
-
-      // Function to get text input and perform encryption
-      function getTextAndEncrypt() {
-        const text = document.querySelector("#textToEncrypt").value;
-        const cleanedText = cleanText(text);
-        const a = parseInt(document.querySelector("#aValue").value, 10);
-        const b = parseInt(document.querySelector("#bValue").value, 10);
-
-        const encryptedText = encryption(cleanedText, a, b);
-        if (encryptedText !== null) {
-          document.querySelector("#resultToEncrypt").value = encryptedText;
-        }
-      }
-
-      function getFrecuency() {
-        // Get the encrypted message entered by the user
-        const encryptedMessage = document
-          .getElementById("encriptedText")
-          .value.toUpperCase();
-        const messageWithoutSpaces = encryptedMessage.replace(
-          /[^a-zA-Z]+/g,
-          ""
-        );
-
-        // Create an object to store letter frequencies
-        const frequencies = {};
-
-        // Count the frequency of each letter in the encrypted message
-        for (const letter of messageWithoutSpaces) {
-          frequencies[letter] = (frequencies[letter] || 0) + 1;
-        }
-
-        // Sort letters by frequency from highest to lowest
-        const sortedLetters = Object.keys(frequencies).sort(
-          (a, b) => frequencies[b] - frequencies[a]
-        );
-
-        // Calculate percentage frequency for each letter and store it in a new object
-        const percentageFrequencies = {};
-        for (const letter of sortedLetters) {
-          const frequency = frequencies[letter];
-          const percentage =
-            ((frequency / messageWithoutSpaces.length) * 100).toFixed(2) + "%";
-          percentageFrequencies[letter] = percentage;
-        }
-
-        // Create a table with frequency statistics and display it in the corresponding field
-        let table =
-          "<table><thead><tr><th>Letra</th><th>Frecuencia</th></tr></thead><tbody>";
-        for (let i = 0; i < 5; i++) {
-          const letter = sortedLetters[i];
-          table += `<tr><td>${letter}</td><td>${percentageFrequencies[letter]}</td></tr>`;
-        }
-        table += "</tbody></table>";
-
-        const frequencyAnalysisElement =
-          document.getElementById("frecuencyAnalysis");
-        frequencyAnalysisElement.innerHTML = table;
-        frequencyAnalysisElement.style.margin = "auto"; // Center the table on the screen
-
-        decrypt();
-      }
-
-      function decrypt() {
-        var inputText = document.getElementById("encriptedText").value;
-        var keyA = parseInt(document.getElementById("aVal").value);
-        var keyB = parseInt(document.getElementById("bVal").value);
-
-        var decryptedText = affineDecrypt(inputText, keyA, keyB);
-        document.getElementById("resultToDescript").value = decryptedText;
-      }
-
-      function affineDecrypt(text, keyA, keyB) {
-        var decryptedText = "";
-        var multiplicativeInverse = 0;
-        for (var i = 0; i < 26; i++) {
-          if ((keyA * i) % 26 === 1) {
-            multiplicativeInverse = i;
-            break;
-          }
-        }
-        for (var i = 0; i < text.length; i++) {
-          var charCode = text.charCodeAt(i);
-          if (isUppercase(charCode)) {
-            decryptedText += String.fromCharCode(
-              ((multiplicativeInverse * (charCode - 65 - keyB + 27)) % 27) + 65
-            );
-          } else if (isLowercase(charCode)) {
-            decryptedText += String.fromCharCode(
-              ((multiplicativeInverse * (charCode - 97 - keyB + 27)) % 27) + 97
-            );
-          } else {
-            decryptedText += text.charAt(i);
-          }
-        }
-        return decryptedText;
-      }
-
-      function isUppercase(charCode) {
-        return charCode >= 65 && charCode <= 90;
-      }
-      function isLowercase(charCode) {
-        return charCode >= 97 && charCode <= 122;
-      }
-    </script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase.js"></script>
+    <script src="./login.js"></script>
   </body>
 </html>
